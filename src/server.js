@@ -20,3 +20,7 @@ function setupServer() {
 }
 
 module.exports = { setupServer };
+const contactsRouter = require('./routes/contacts');
+
+app.use('/contacts', contactsRouter);
+
