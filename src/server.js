@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { createLogger } from 'pino';
+import pino from 'pino'; 
+
+const { createLogger } = pino; 
 
 const setupServer = () => {
   const app = express();
@@ -13,7 +15,7 @@ const setupServer = () => {
     res.status(404).json({ message: 'Not found' });
   });
 
-  
+
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`);
