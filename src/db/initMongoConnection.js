@@ -1,17 +1,19 @@
+import 'dotenv/config';
+
 import mongoose from 'mongoose';
 
-export const initMongoConnection = async () => {
+export default async function initMongoConnection() {
   try {
-    const user = process.env.MONGODB_USER;
-    const pwd = process.env.MONGODB_PASSWORD;
+    const name = process.env.MONGODB_USER;
+    const password = process.env.MONGODB_PASSWORD;
     const url = process.env.MONGODB_URL;
     const db = process.env.MONGODB_DB;
     await mongoose.connect(
-      `mongodb+srv://${user}:${pwd}@${url}/${db}?retryWrites=true&w=majority&appName=Cluster0`,
+      `mongodb+srv://${name}:${password}@${url}/${db}?retryWrites=true&w=majority`,
     );
     console.log('Database connection successfully established!');
   } catch (error) {
-    console.error('Database connection failed:', error);
-    process.exit(1);
+    console.error(error);
+    throw error;
   }
-};
+}
