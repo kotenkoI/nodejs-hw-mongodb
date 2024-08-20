@@ -10,38 +10,25 @@ export async function getContacts(req, res, next) {
   const { sortBy, sortOrder } = parseSortParams(req.query);
   const filter = parseFilterParams(req.query);
 
-  const { contacts, totalPages, totalItems, hasNextPage, hasPreviousPage } =
-    await ContactsService.getAllContacts({
-      page,
-      perPage,
-      sortBy,
-      sortOrder,
-      filter,
-    });
-
-  if (!contacts || contacts.length === 0) {
+  const contacts = await ContactsService.getAllContacts({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
+  if (contacts.length === 0) {
     return next(createHttpError(404, 'Contacts not found'));
   }
-
-  if (page > totalPages) {
+  if (page > contacts.totalPages) {
     return next(createHttpError(404, 'Page not found'));
   }
-
   res.status(200).send({
     status: 200,
     message: 'Successfully found contacts!',
-    data: {
-      data: contacts, // Теперь данные будут в массиве data без ключа "contacts"
-      page,
-      perPage,
-      totalItems,
-      totalPages,
-      hasNextPage,
-      hasPreviousPage,
-    },
+    data: contacts,
   });
 }
-
 
 export async function getContactById(req, res, next) {
   const { contactsId } = req.params;
