@@ -26,9 +26,7 @@ export async function getContacts(req, res, next) {
   res.status(200).send({
     status: 200,
     message: 'Successfully found contacts!',
-    data: {
-      data: contacts.data,
-    },
+    data: contacts,
   });
 }
 
