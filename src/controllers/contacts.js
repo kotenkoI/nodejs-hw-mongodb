@@ -50,7 +50,7 @@ export async function getContactById(req, res, next) {
   });
 }
 
-export async function createContact(req, res, next) {
+export async function createContact(req, res) {
   const contact = {
     name: req.body.name,
     phoneNumber: req.body.phoneNumber,
@@ -71,11 +71,12 @@ export async function createContact(req, res, next) {
     } else {
       photoUrl = await saveFileToUploadDir(photo);
     }
-    
-    contact.photo = photoUrl;
   }
 
-  const newContact = await ContactsService.createNewContact(contact);
+  const newContact = await ContactsService.createNewContact({
+    ...contact,
+    photo: photoUrl,
+  });
   res.status(201).send({
     status: 201,
     message: 'Successfully created a contact!',
@@ -97,7 +98,6 @@ export async function deleteContact(req, res, next) {
 
 export async function updateContact(req, res, next) {
   const { contactsId } = req.params;
-
   const contact = {
     name: req.body.name,
     phoneNumber: req.body.phoneNumber,
@@ -105,7 +105,6 @@ export async function updateContact(req, res, next) {
     isFavourite: req.body.isFavourite,
     contactType: req.body.contactType,
   };
-
   const photo = req.file;
   let photoUrl;
 
@@ -117,16 +116,13 @@ export async function updateContact(req, res, next) {
     } else {
       photoUrl = await saveFileToUploadDir(photo);
     }
-    
-    contact.photo = photoUrl;
   }
-
   const updated = await ContactsService.updateOldContact(
     contactsId,
-    contact,
+    { ...contact, photo: photoUrl },
     req.user._id,
   );
-
+  console.log(updated);
   if (updated === null) {
     return next(createHttpError(404, 'Contact not found!'));
   }
