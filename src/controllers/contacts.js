@@ -1,7 +1,6 @@
 import createHttpError from 'http-errors';
 import * as ContactsService from '../services/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
-
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToUploadDir } from '../utils/saveFaleToUploadDir.js';
@@ -60,6 +59,7 @@ export async function createContact(req, res, next) {
     contactType: req.body.contactType,
     userId: req.user._id,
   };
+
   const photo = req.file;
   let photoUrl;
 
@@ -71,7 +71,10 @@ export async function createContact(req, res, next) {
     } else {
       photoUrl = await saveFileToUploadDir(photo);
     }
+    
+    contact.photo = photoUrl;
   }
+
   const newContact = await ContactsService.createNewContact(contact);
   res.status(201).send({
     status: 201,
@@ -94,7 +97,7 @@ export async function deleteContact(req, res, next) {
 
 export async function updateContact(req, res, next) {
   const { contactsId } = req.params;
-  console.log(req.user._id);
+
   const contact = {
     name: req.body.name,
     phoneNumber: req.body.phoneNumber,
@@ -102,7 +105,8 @@ export async function updateContact(req, res, next) {
     isFavourite: req.body.isFavourite,
     contactType: req.body.contactType,
   };
-   const photo = req.file;
+
+  const photo = req.file;
   let photoUrl;
 
   const checkIfCloudinary = process.env.ENABLE_CLOUDINARY;
@@ -113,13 +117,16 @@ export async function updateContact(req, res, next) {
     } else {
       photoUrl = await saveFileToUploadDir(photo);
     }
+    
+    contact.photo = photoUrl;
   }
-    const updated = await ContactsService.updateOldContact(
+
+  const updated = await ContactsService.updateOldContact(
     contactsId,
-    { ...contact, photo: photoUrl },
+    contact,
     req.user._id,
   );
-  console.log(updated);
+
   if (updated === null) {
     return next(createHttpError(404, 'Contact not found!'));
   }
