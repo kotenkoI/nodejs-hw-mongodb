@@ -107,3 +107,6 @@ export async function sendPassword(req, res) {
   });
 }
 
+export async function getOAuthUrl(req, res, next) {
+  const url = generateAuthUrl();
+}
