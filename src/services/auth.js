@@ -154,39 +154,5 @@ export async function resetPassword(password, token) {
     throw error;
   }
 }
-export async function loginOrRegisterWithGoogle(code) {
-  const ticket = await validateCode(code);
-  const payload = ticket.getPayload();
 
-  if (typeof payload === 'undefined') {
-    throw createHttpError(401, 'Unauthorized');
-  }
-
-  const user = await userModel.findOne({ email: payload.email });
-  if (user === null) {
-    const password = await bcrypt.hash(randomBytes(30).toString('base64'), 10);
-    const createUser = await userModel.create({
-      email: payload.email,
-      name: payload.name,
-      password,
-    });
-
-    return sessionModel.create({
-      userId: createUser._id,
-      accessToken: randomBytes(30).toString('base64'),
-      refreshToken: randomBytes(30).toString('base64'),
-      accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-      refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
-    });
-  }
-
-  await sessionModel.deleteOne({ userId: user._id });
-
-  return sessionModel.create({
-    userId: user._id,
-    accessToken: randomBytes(30).toString('base64'),
-    refreshToken: randomBytes(30).toString('base64'),
-    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-    refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
-  });
-}
+ 

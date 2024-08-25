@@ -74,5 +74,4 @@ export const patchContactsValidationSchema = Joi.object({
       'string.max': 'contactType should be at most {#limit}',
     }),
 });
-photo: Joi.string(),
-});
+
