@@ -7,7 +7,7 @@ import { parseFilterParams } from '../utils/parseFilterParams.js';
 import { saveFileToUploadDir } from '../utils/saveFaleToUploadDir.js';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 
-export async function getContacts(req, res, next) {
+export async function getContacts(req, res) {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
   const filter = parseFilterParams(req.query);
@@ -23,15 +23,7 @@ export async function getContacts(req, res, next) {
   res.status(200).send({
     status: 200,
     message: 'Successfully found contacts!',
-    data: {
-      data: contacts.contacts, 
-      page: contacts.page,
-      perPage: contacts.perPage,
-      totalItems: contacts.totalItems,
-      totalPages: contacts.totalPages,
-      hasNextPage: contacts.hasNextPage,
-      hasPreviousPage: contacts.hasPreviousPage,
-    },
+    data: contacts,
   });
 }
 
@@ -51,7 +43,7 @@ export async function getContactById(req, res, next) {
   });
 }
 
-export async function createContact(req, res, next) {
+export async function createContact(req, res) {
   const contact = {
     name: req.body.name,
     phoneNumber: req.body.phoneNumber,
@@ -72,11 +64,12 @@ export async function createContact(req, res, next) {
     } else {
       photoUrl = await saveFileToUploadDir(photo);
     }
-    
-    contact.photo = photoUrl;
   }
 
-  const newContact = await ContactsService.createNewContact(contact);
+  const newContact = await ContactsService.createNewContact({
+    ...contact,
+    photo: photoUrl,
+  });
   res.status(201).send({
     status: 201,
     message: 'Successfully created a contact!',
@@ -98,7 +91,6 @@ export async function deleteContact(req, res, next) {
 
 export async function updateContact(req, res, next) {
   const { contactsId } = req.params;
-
   const contact = {
     name: req.body.name,
     phoneNumber: req.body.phoneNumber,
@@ -106,7 +98,6 @@ export async function updateContact(req, res, next) {
     isFavourite: req.body.isFavourite,
     contactType: req.body.contactType,
   };
-
   const photo = req.file;
   let photoUrl;
 
@@ -118,16 +109,13 @@ export async function updateContact(req, res, next) {
     } else {
       photoUrl = await saveFileToUploadDir(photo);
     }
-    
-    contact.photo = photoUrl;
   }
-
   const updated = await ContactsService.updateOldContact(
     contactsId,
-    contact,
+    { ...contact, photo: photoUrl },
     req.user._id,
   );
-
+  console.log(updated);
   if (updated === null) {
     return next(createHttpError(404, 'Contact not found!'));
   }
