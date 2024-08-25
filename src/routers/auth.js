@@ -9,14 +9,13 @@ import {
   sendResetEmail,
   sendPassword,
   getOAuthUrl,
-  loginWithGoogle,
-} from '../controllers/auth.js';
+  } from '../controllers/auth.js';
 import {
   loginValidationSchema,
   registerValidationSchema,
   sendResetEmailSchema,
   resetPasswordSchema,
-  loginWithGoogleSchema,
+  
 } from '../validations/auth.js';
 
 const router = express.Router();
@@ -56,10 +55,4 @@ router.post(
 
 router.get('/get-oauth-url', ctrlWrapper(getOAuthUrl));
 
-router.post(
-  '/confirm-oauth',
-  jsonParser,
-  validateBody(loginWithGoogleSchema),
-  ctrlWrapper(loginWithGoogle),
-);
 export default router;
